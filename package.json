@@ -1,0 +1,39 @@
+{
+  "name": "twitter-backend",
+  "version": "1.0.0",
+  "description": "Microservices-based Twitter backend with API Gateway",
+  "main": "api-gateway/index.js",
+  "private": true,
+  "keywords": [
+    "twitter",
+    "microservices",
+    "nodejs",
+    "express",
+    "mongodb"
+  ],
+  "author": "abdulmoiz-bit",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  },
+  "scripts": {
+    "start": "npm run start:all",
+    "start:all": "concurrently \"npm run start:gateway\" \"npm run start:user\" \"npm run start:tweet\"",
+    "start:gateway": "nodemon api-gateway/index.js",
+    "start:auth": "nodemon services/auth/src/app.js",
+    "start:user": "nodemon services/user/src/app.js",
+    "start:tweet": "nodemon services/tweets/src/app.js",
+    "install:all": "npm install && cd api-gateway && npm install && cd ../services/auth && npm install && cd ../../services/user && npm install && cd ../../services/tweets && npm install && cd ../..",
+    "lint": "eslint . --ext .js",
+    "test": "echo \"No test suite configured yet\"",
+    "setup": "npm run install:all"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  },
+  "dependencies": {
+    "concurrently": "^9.2.1",
+    "ts-node": "^10.9.2"
+  }
+}
