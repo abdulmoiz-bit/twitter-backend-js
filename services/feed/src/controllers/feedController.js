@@ -1,6 +1,9 @@
 import {client} from "../services/client.js"
 import Tweet from "../models/tweetModel.js"
 
+
+
+// FANOUT READ METHOD
 const getFeed = async (req, res) => {
    const userId = req.user.id;
   //const cacheKey = `feed:${userId}`
@@ -23,7 +26,7 @@ const getFeed = async (req, res) => {
 };
 
 
-
+// FANOUT WRITE METHOD
 const getHomeFeed = async (req, res) => {
   const userId = req.user.id;
 

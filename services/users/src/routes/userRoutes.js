@@ -1,13 +1,13 @@
 import { Router } from "express";
-import {createUser, getUser, login, getAllUsers, protect, toggleFollow, getFollowers, getUserTweets, getFollowing} from "../controllers/userController.js"; 
+import {createUser, getUser, getAllUsers, protect, toggleFollow, getFollowers, getUserTweets, getFollowing} from "../controllers/userController.js"; 
 
 const router = Router();
 
 // CREATE A NEW USER
-router.post("/signup", createUser);
+router.post("/", createUser);
 
 // LOGIN A USER
-router.post("/login", login);
+//router.post("/login", login);
 
 // GET ALL USERS
 router.get("/", getAllUsers);

@@ -1,6 +1,4 @@
-const mongoose = require("mongoose");
-//const User = require("./userModel");
-//const Tweet = require("./tweetModel");
+import mongoose from "mongoose";
 
 const commentSchema = new mongoose.Schema({
   createdAt: {
@@ -8,18 +6,21 @@ const commentSchema = new mongoose.Schema({
     default: Date.now(),
     select: false,
   },
-  /*
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: [true, "a tweet must belong to a user"],
+  userId: {
+    type : String,
+     required : [true, "a  user must have a user id"],
   },
-  */
+  tweetId: {
+    type: String,
+    required : [true, "a commnet mush have a tweet id"]
+  },
+  /*
    tweet: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Tweet",
     require: [true, "a reply tweet must belong to a tweet"],
   },
+  */
   text: {
     type: String,
     //required: [true, "a tweet must have a text"],
@@ -39,4 +40,4 @@ const commentSchema = new mongoose.Schema({
 });
 
 const Comment = mongoose.model("Comment", commentSchema);
-module.exports = Comment;
+export default Comment;

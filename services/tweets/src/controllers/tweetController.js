@@ -1,4 +1,4 @@
-import Tweet from "../models/tweetModel.js"
+import Tweet from "../models/tweetModel.js";
 //const Tweet = require("./../models/tweetModel");
 //const Comment = require("./../models/commentModel");
 //const {getUserById} = require("../services/userApi")
@@ -6,7 +6,7 @@ import Tweet from "../models/tweetModel.js"
 import { publishTweetEvent } from "../services/streamService.js";
 //import { getUserById } from "../services/userApi.js";
 import { getFollowing } from "../services/userApi.js";
-import {redis} from "../services/client.js"
+//import { redis } from "../services/client.js";
 
 const getAllTweets = async (req, res) => {
   const tweets = await Tweet.find();
@@ -29,15 +29,14 @@ const setTweetId = (req, res, next) => {
 };  
 */
 
-
 const postTweet = async (req, res) => {
   const { text } = req.body;
   const userId = req.user.id;
   //const{userId} = req.body;
   const newTweet = await Tweet.create({
     text,
-    userId: userId
-  })
+    userId: userId,
+  });
   console.log(newTweet);
   await publishTweetEvent(newTweet);
   res.status(201).json({
@@ -45,6 +44,7 @@ const postTweet = async (req, res) => {
     data: {
       tweet: newTweet,
     },
+    // tweet : newTweet
   });
 };
 
@@ -55,11 +55,10 @@ const getTweetsByUserId = async (req, res) => {
     status: "success",
     results: tweets.length,
     data: {
-      tweets
-    }
-  })
-}
-
+      tweets,
+    },
+  });
+};
 
 // via rest api communication to User Service to get user details
 /*
@@ -87,7 +86,6 @@ exports.postTweet = async (req, res) => {
 };
 
 */
-
 
 /*
 exports.setUserId = (req, res, next) => {
@@ -180,48 +178,28 @@ exports.deleteTweet = async (req, res) => {
 */
 
 
+
+
+// FANOUT READ METHOD
 const getFeed = async (req, res) => {
-  /*
-  // 1. Find current user
-  const currentUser = await User.findById(req.user.id);
-  */
-
   const userId = req.user.id;
-  const cacheKey = `feed:${userId}`
-
+  //const cacheKey = `feed:${userId}`
+  /*
   const cachedFeed = await redis.get(cacheKey);
   if(cachedFeed){
     return res.json(JSON.parse(cachedFeed));
   }
-
+  */
   const followingIds = await getFollowing(userId);
   const tweets = await Tweet.find({
-    user: { $in: followingIds }
-  }).sort({ createdAt: -1 }).limit(50);
-
-  await redis.setExpire(cacheKey, 30, JSON.stringify(tweets));
-
-  res.json(tweets);
-
-  /*
-  // 2. Get list of users to include in feed
-  const usersToInclude = [req.user.id, ...currentUser.following];
-
-  // 3. Find tweets from these users, sorted by creation date
-  const tweets = (
-    await Tweet.find({ user: { $in: usersToInclude } }).populate("user", "name")
-  )
+    user: { $in: followingIds },
+  })
     .sort({ createdAt: -1 })
     .limit(50);
-  res.status(200).json({
-    status: "success",
-    results: tweets.length,
-    data: {
-      tweets,
-    },
-  });
-  */
+
+  //await redis.setExpire(cacheKey, 30, JSON.stringify(tweets));
+
+  res.json(tweets);
 };
 
-
-export { getAllTweets, postTweet, getTweetsByUserId, getFeed }
+export { getAllTweets, postTweet, getTweetsByUserId, getFeed };

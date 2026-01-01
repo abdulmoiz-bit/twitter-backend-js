@@ -1,23 +1,15 @@
-//import {prisma} from "../db/prisma"
-//import express from "express";
-//import { v4 as uuidv4 } from "uuid";
-//import prisma from "../config/prisma"; // adjust this path based on your project
 import User from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 import { getTweetsByUserId } from "../services/tweetApi.js";
 
 
 const createUser = async (req, res) => {
-  const { username, name, email, password } = req.body;
+  const { username, name} = req.body;
   const user = await User.create({
     username,
     name,
-    email,
-    password, // TODO: hash this before saving
   });
   console.log("User created", user)
-  createSendToken(user, 201, res);
-  //return res.json(user);
 };
 
 
@@ -88,6 +80,8 @@ exports.deleteUser = async(req, res)=> {
 }
 */
 
+/*
+
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
@@ -138,9 +132,10 @@ const login = async (req, res) => {
     throw new Error("incorrect email or password");
   }
   */
+ /*
   createSendToken(user, 200, res);
 };
-
+*/
 
 // this should be in api-gateway
 
@@ -158,7 +153,7 @@ const protect = async (req, res, next) => {
   }
 
   // 2) Verification token
-  const decoded = await jwt.verify(token, process.env.JWT_SECRET);
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
   // 3) Check if user still exists
   const currentUser = await User.findById(decoded.id);
@@ -248,4 +243,4 @@ const getFollowing = async(req,res) => {
 
 
 
-export {createUser, getUser, getAllUsers, login, protect, toggleFollow, getFollowers, getFollowing, getUserTweets};
+export {createUser, getUser, getAllUsers, protect, toggleFollow, getFollowers, getFollowing, getUserTweets};
