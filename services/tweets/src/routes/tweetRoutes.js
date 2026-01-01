@@ -55,9 +55,6 @@ router.get("/:userId", getTweetsByUserId);
 //router.get('/:tweetId/bookmarks', getBookmarks);
 
 
-// these route have not been tested yet
-router.get('/feed', protect, getFeed);
-
 
 //module.exports = router;
 export default router;
