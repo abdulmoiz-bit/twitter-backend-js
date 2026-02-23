@@ -3,9 +3,9 @@ import Tweet from "../models/tweetModel.js";
 //const Comment = require("./../models/commentModel");
 //const {getUserById} = require("../services/userApi")
 //const { publishTweetEvent } = require("../services/streamService");
-import { publishTweetEvent } from "../services/streamService.js";
+//import { publishTweetEvent } from "../services/streamService.js";
 //import { getUserById } from "../services/userApi.js";
-import { getFollowing } from "../services/userApi.js";
+//import { getFollowing } from "../services/userApi.js";
 //import { redis } from "../services/client.js";
 
 const getAllTweets = async (req, res) => {
@@ -21,13 +21,6 @@ const getAllTweets = async (req, res) => {
   });
 };
 
-/*
-const setTweetId = (req, res, next) => {
-  //if (!req.body.tweet) req.body.tweet = req.tweet.id;
-  if(!req.body.tweetId) req.body.tweetId = req.params.tweetId;
-  next();
-};  
-*/
 
 const postTweet = async (req, res) => {
   const { text } = req.body;
@@ -38,7 +31,7 @@ const postTweet = async (req, res) => {
     userId: userId,
   });
   console.log(newTweet);
-  await publishTweetEvent(newTweet);
+  //await publishTweetEvent(newTweet);
   res.status(201).json({
     status: "success",
     data: {
@@ -94,30 +87,7 @@ exports.setUserId = (req, res, next) => {
 };
 */
 
-/*
-exports.postComment = async (req, res, next) => {
-  const { text } = req.body;
-  const { tweetId } = req.params;
-  const tweet = await Tweet.findById(tweetId);
-  if (!tweet) {
-    return res.status(404).json({
-      status: "fail",
-      message: "Tweet not found",
-    });
-  }
-  const comment = await Comment.create({
-    text,
-    tweet: tweetId,
-    user: req.user.id,
-  });
-  //const newTweetReply = await Reply.create(req.body);
-  //console.log(newTweetReply);
-  res.status(201).json({
-    status: "success",
-    data: { comment },
-  });
-};
-*/
+
 
 /*
 exports.getReplies = async (req,res) => {
@@ -125,38 +95,6 @@ exports.getReplies = async (req,res) => {
 }
 */
 
-/*
-
-exports.toggleLike = async (req, res, next) => {
- // const userId = req.user.id;
-  const tweetId = req.params.tweetId;
-
-  const tweet = await Tweet.findById(tweetId);
-  if (!tweet) {
-    return res.status(404).json({
-      status: "fail",
-      message: "Tweet not found",
-    });
-  }
-
-  const alreadyLiked = tweet.likes.includes(userId);
-  if (alreadyLiked) {
-    tweet.likes.pull(userId);
-  } else {
-    tweet.likes.push(userId);
-  }
-
-
-  await tweet.save();
-  res.status(200).json({
-    status: "success",
-   // message: alreadyLiked ? "Tweet unliked" : "Tweet Liked",
-    data: {
-      likesCount: tweet.likes.length,
-    },
-  });
-};
-*/
 
 /*
 exports.getTweetLikes = async (req, res) => {
@@ -179,27 +117,4 @@ exports.deleteTweet = async (req, res) => {
 
 
 
-
-// FANOUT READ METHOD
-const getFeed = async (req, res) => {
-  const userId = req.user.id;
-  //const cacheKey = `feed:${userId}`
-  /*
-  const cachedFeed = await redis.get(cacheKey);
-  if(cachedFeed){
-    return res.json(JSON.parse(cachedFeed));
-  }
-  */
-  const followingIds = await getFollowing(userId);
-  const tweets = await Tweet.find({
-    user: { $in: followingIds },
-  })
-    .sort({ createdAt: -1 })
-    .limit(50);
-
-  //await redis.setExpire(cacheKey, 30, JSON.stringify(tweets));
-
-  res.json(tweets);
-};
-
-export { getAllTweets, postTweet, getTweetsByUserId, getFeed };
+export { getAllTweets, postTweet, getTweetsByUserId};

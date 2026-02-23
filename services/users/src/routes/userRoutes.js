@@ -1,5 +1,5 @@
 import { Router } from "express";
-import {createUser, getUser, getAllUsers, protect, toggleFollow, getFollowers, getUserTweets, getFollowing} from "../controllers/userController.js"; 
+import {createUser, getUser, getAllUsers, protect, getFollowers, getUserTweets, getFollowing} from "../controllers/userController.js"; 
 
 const router = Router();
 
@@ -44,10 +44,6 @@ router.get("/:id/tweets", getUserTweets);
 
 // GET ALL BOOKMARKS OF A USER
 //router.get("/:id/bookmarks", userController.getUserBookmarks);
-
-
-// TOGGLE FOLLOW/UNFOLLOW A USER
-router.patch('/:id/follow', protect, toggleFollow);
 
 
 

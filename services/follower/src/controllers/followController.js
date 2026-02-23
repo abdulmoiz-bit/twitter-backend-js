@@ -1,3 +1,5 @@
+import { getUserById } from "../services/userApi.js";
+
 const toggleFollow = async (req, res) => {
   const targetUserId = req.params.id;
   const currentUserId = req.user.id;
@@ -8,8 +10,11 @@ const toggleFollow = async (req, res) => {
       message: "you cannot follow yourself",
     });
   }
-  const targetUser = await User.findById(targetUserId);
-  const currentUser = await User.findById(currentUserId);
+
+  const targetUser = await getUserById(targetUserId);
+  const currentUser = await getUserById(currentUserId);
+  //const targetUser = await User.findById(targetUserId);
+  //const currentUser = await User.findById(currentUserId);
   if (!targetUser) {
     return res.status(404).json({
       status: "fail",
