@@ -1,0 +1,133 @@
+version: "3.9"
+
+services:
+  # API Gateway
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=development
+      - AUTH_SERVICE_URL=http://auth:5001
+      - USERS_SERVICE_URL=http://users:5002
+      - TWEETS_SERVICE_URL=http://tweets:5003
+      - FEED_SERVICE_URL=http://feed:5004
+      - FOLLOWER_SERVICE_URL=http://follower:5005
+    depends_on:
+      - auth
+      - users
+      - tweets
+      - feed
+      - follower
+      - email
+    networks:
+      - twitter-network
+
+  # Authentication Service
+  auth:
+    build: ./services/auth
+    container_name: auth-service
+    ports:
+      - "5001:5001"
+    environment:
+      - NODE_ENV=development
+      - PORT=5001
+      - MONGODB_URI=${MONGODB_URI}
+      - JWT_SECRET=${JWT_SECRET:-your_jwt_secret}
+    depends_on:
+      - mongo
+    networks:
+      - twitter-network
+    restart: unless-stopped
+
+  # Users Service
+  users:
+    build: ./services/users
+    container_name: users-service
+    ports:
+      - "5002:5002"
+    environment:
+      - NODE_ENV=development
+      - PORT=5002
+      - MONGODB_URI=${MONGODB_URI}
+      - AUTH_SERVICE_URL=http://auth:5001
+      - TWEETS_SERVICE_URL=http://tweets:5003
+    depends_on:
+      - mongo
+      - auth
+    networks:
+      - twitter-network
+    restart: unless-stopped
+
+  # Tweets Service
+  tweets:
+    build: ./services/tweets
+    container_name: tweets-service
+    ports:
+      - "5003:5003"
+    environment:
+      - NODE_ENV=development
+      - PORT=5003
+      - MONGODB_URI=${MONGODB_URI}
+      - AUTH_SERVICE_URL=http://auth:5001
+      - USERS_SERVICE_URL=http://users:5002
+      - FEED_SERVICE_URL=http://feed:5004
+    depends_on:
+      - mongo
+      - auth
+    networks:
+      - twitter-network
+    restart: unless-stopped
+
+  # Feed Service
+  feed:
+    build: ./services/feed
+    container_name: feed-service
+    ports:
+      - "5004:5004"
+    environment:
+      - NODE_ENV=development
+      - PORT=5004
+      - MONGODB_URI=${MONGODB_URI}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - AUTH_SERVICE_URL=http://auth:5001
+    depends_on:
+      - mongo
+      - redis
+      - auth
+    networks:
+      - twitter-network
+    restart: unless-stopped
+
+  # Follower Service
+  follower:
+    build: ./services/follower
+    container_name: follower-service
+    ports:
+      - "4005:4005"
+    environment:
+      - NODE_ENV=development
+      - PORT=5005
+      - MONGODB_URI=${MONGODB_URI}
+      - AUTH_SERVICE_URL=http://auth:5001
+      - USERS_SERVICE_URL=http://users:5002
+    depends_on:
+      - mongo
+      - auth
+    networks:
+      - twitter-network
+    restart: unless-stopped
+
+
+
+ 
+
+volumes:
+  mongo-data:
+  mongo-config:
+  redis-data:
+
+networks:
+  twitter-network:
+    driver: bridge

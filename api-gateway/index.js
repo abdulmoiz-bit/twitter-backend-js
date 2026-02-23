@@ -47,6 +47,6 @@ app.get('/', (req, res) => {
 app.use("/api/v1/users", proxy(process.env.USER_SERVICE_URL));
 app.use("/api/v1/tweets", authMiddleware, proxy(process.env.TWEET_SERVICE_URL));
 
-app.listen(process.env.GATEWAY_PORT || 5010, () =>
-  console.log(`API Gateway running on ${process.env.GATEWAY_PORT || 5010}`)
+app.listen(process.env.GATEWAY_PORT || 5000, () =>
+  console.log(`API Gateway running on ${process.env.GATEWAY_PORT || 5000}`)
 );

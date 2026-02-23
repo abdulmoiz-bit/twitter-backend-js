@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, "a user must have a name"]
     },
+    /*
     email: {
         type: String,
         required: [true, "a user must have a email address"],
@@ -21,6 +22,8 @@ const userSchema = new mongoose.Schema({
         required: [true, "a user must have a password"],
         minlength: 8
     },
+    */
+   // bio, location, profile phote, birthday, joined date, etc 
    followers: [
     {
       type: mongoose.Schema.Types.ObjectId,

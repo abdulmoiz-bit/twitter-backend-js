@@ -1,21 +1,21 @@
-import authUser from "../models/authModel";
+import authUser from "../models/authModel.js";
 import axios from "axios";
 import jwt from "jsonwebtoken";
 
 
 const createUser = async (req, res) => {
   const { username, name, email, password } = req.body;
-  const authUser = await authUser.create({
+  const authUserModel = await authUser.create({
     email,
     password, // TODO: hash this before saving
   });
-  console.log("User created", authUser);
+  console.log("User created", authUserModel);
   await axios.post("http://localhost:5002/api/v1/users", {
-    userId: authUser._id,
+    userId: authUserModel._id,
     username,
     name,
   });
-  createSendToken(authUser, 201, res);
+  createSendToken(authUserModel, 201, res);
   //return res.json(user);
 };
 
@@ -25,8 +25,8 @@ const signToken = (id) => {
   });
 };
 
-const createSendToken = (authUser, statusCode, res) => {
-  const token = signToken(authUser._id);
+const createSendToken = (authUserModel, statusCode, res) => {
+  const token = signToken(authUserModel._id);
   const cookieOptions = {
     expires: new Date(
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
@@ -37,13 +37,13 @@ const createSendToken = (authUser, statusCode, res) => {
   //if(process.env.NODE_ENV === 'production') cookieOptions.secure = true;
   res.cookie("jwt", token, cookieOptions);
 
-  authUser.password = undefined;
+  authUserModel.password = undefined;
 
   res.status(statusCode).json({
     status: "success",
     token,
     data: {
-      authUser,
+      authUserModel,
     },
   });
 };
@@ -58,7 +58,7 @@ const login = async (req, res) => {
 
   // 2) Check if user exists && password is correct
   // +passoword can not understand
-  const user = await authUser.findOne({ email }).select("+password");
+  const user = await authUserModel.findOne({ email }).select("+password");
 
   // solve this immediately
   /*
@@ -69,4 +69,4 @@ const login = async (req, res) => {
   createSendToken(user, 200, res);
 };
 
-export { login, createSendToken, createUser };
+export { login, createUser };
