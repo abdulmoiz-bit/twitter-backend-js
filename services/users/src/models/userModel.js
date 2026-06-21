@@ -10,32 +10,30 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, "a user must have a name"]
     },
-    /*
-    email: {
-        type: String,
-        required: [true, "a user must have a email address"],
-        unique: true,
-        lowercase: true,
-    },
-    password: {
-        type: String,
-        required: [true, "a user must have a password"],
-        minlength: 8
-    },
-    */
-   // bio, location, profile phote, birthday, joined date, etc 
+   // bio, location, profile phote, birthday, joined date, etc
+   /* 
    followers: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User'
     }
    ],
+   
    following: [
     {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }
-   ]
+   ],
+   */
+   followersCount: {
+    type: Number,
+    default: 0,
+   },
+   followingCount: {
+    type: Number,
+    default:0
+   }
 });
 
 const User = mongoose.model('User', userSchema);

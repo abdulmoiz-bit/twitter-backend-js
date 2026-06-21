@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 //import "dotenv/config";
 import express from "express";
 import router from "./routes/followRoutes.js";
+import mongoose from "mongoose";
 
 
 import { fileURLToPath } from "url";
@@ -15,6 +16,13 @@ dotenv.config({ path: __dirname + "/../.env" });
 const app = express();
 
 app.use(express.json());
+
+const DB = process.env.DATABASE.replace(
+  "<PASSWORD>",
+  process.env.DATABASE_PASSWORD,
+);
+
+mongoose.connect(DB).then(() => console.log("DB connection successful!"));
 
 app.use("/api/v1/follow", router);
 

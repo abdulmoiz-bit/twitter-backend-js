@@ -144,3 +144,61 @@ exports.restrictTo = (...roles) => {
 
 
 export {createUser, getUser, getAllUsers, protect, getFollowers, getFollowing, getUserTweets};
+
+
+
+// increment followers
+export const incrementFollowers = async (req, res) => {
+  const user = await User.findByIdAndUpdate(
+    req.params.id,
+    { $inc: { followersCount: 1 } },
+    { new: true }
+  );
+
+  res.status(200).json({
+    status: "success",
+    data: { user }
+  });
+};
+
+// decrement followers
+export const decrementFollowers = async (req, res) => {
+  const user = await User.findByIdAndUpdate(
+    req.params.id,
+    { $inc: { followersCount: -1 } },
+    { new: true }
+  );
+
+  res.status(200).json({
+    status: "success",
+    data: { user }
+  });
+};
+
+// increment following
+export const incrementFollowing = async (req, res) => {
+  const user = await User.findByIdAndUpdate(
+    req.params.id,
+    { $inc: { followingCount: 1 } },
+    { new: true }
+  );
+
+  res.status(200).json({
+    status: "success",
+    data: { user }
+  });
+};
+
+// decrement following
+export const decrementFollowing = async (req, res) => {
+  const user = await User.findByIdAndUpdate(
+    req.params.id,
+    { $inc: { followingCount: -1 } },
+    { new: true }
+  );
+
+  res.status(200).json({
+    status: "success",
+    data: { user }
+  });
+};

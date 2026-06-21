@@ -3,11 +3,11 @@
 import dotenv from "dotenv";
 import express from "express";
 import mongoose from "mongoose";
-import router from "./routes/tweetRoutes.js"
+import router from "./routes/tweetRoutes.js";
 //const express = require("express");
 //const mongoose = require("mongoose");
-//const tweetRouter = require("./routes/tweetRoutes"); 
-
+//const tweetRouter = require("./routes/tweetRoutes");
+//import { connectProducer } from "./kafka/producer.js";
 
 import { fileURLToPath } from "url";
 import { dirname } from "path";
@@ -19,9 +19,11 @@ dotenv.config({ path: __dirname + "/../.env" });
 const app = express();
 app.use(express.json());
 
-
 //const DB = process.env.DATABASE.replace("<PASSWORD>", process.env.DATABASE_PASSWORD);
-const DB = process.env.DATABASE.replace("<PASSWORD>", process.env.DATABASE_PASSWORD);
+const DB = process.env.DATABASE.replace(
+  "<PASSWORD>",
+  process.env.DATABASE_PASSWORD,
+);
 
 mongoose.connect(DB).then(() => console.log("DB connection successful!"));
 
@@ -29,6 +31,14 @@ mongoose.connect(DB).then(() => console.log("DB connection successful!"));
 
 app.use("/api/v1/tweets", router);
 
-app.listen(process.env.PORT || 5003, () =>
-  console.log(`Tweet service running on port ${process.env.PORT || 5003}`)
-);
+/*
+async function start() {
+  await connectProducer();
+  app.listen(process.env.PORT || 5003, () =>
+    console.log(`Tweet service running on port ${process.env.PORT || 5003}`),
+  );
+}
+
+start();
+*/
+

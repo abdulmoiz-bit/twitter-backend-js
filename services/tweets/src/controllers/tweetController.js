@@ -7,6 +7,7 @@ import Tweet from "../models/tweetModel.js";
 //import { getUserById } from "../services/userApi.js";
 //import { getFollowing } from "../services/userApi.js";
 //import { redis } from "../services/client.js";
+//import {producer} from "../kafka/producer.js"
 
 const getAllTweets = async (req, res) => {
   const tweets = await Tweet.find();
@@ -31,13 +32,25 @@ const postTweet = async (req, res) => {
     userId: userId,
   });
   console.log(newTweet);
+  /*
+  await producer.send({
+    topic: "feed",
+    messages: [
+      {
+        key: newTweet.userId,
+        value: JSON.stringify({
+          data: newTweet
+        })
+      }
+    ]
+  })
+    */
   //await publishTweetEvent(newTweet);
   res.status(201).json({
     status: "success",
     data: {
       tweet: newTweet,
     },
-    // tweet : newTweet
   });
 };
 
