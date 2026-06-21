@@ -1,9 +1,11 @@
-import {client} from "../services/client.js"
-import Tweet from "../models/tweetModel.js"
+//import {client} from "../services/client.js"
+//import Tweet from "../models/tweetModel.js"
+import {client} from "../redis/client.js"
 
 
 
 // FANOUT READ METHOD
+/*
 const getFeed = async (req, res) => {
    const userId = req.user.id;
   //const cacheKey = `feed:${userId}`
@@ -15,7 +17,7 @@ const getFeed = async (req, res) => {
   }
   */
 
-  const followingIds = await getFollowing(userId);
+  c/*onst followingIds = await getFollowing(userId);
   const tweets = await Tweet.find({
     user: { $in: followingIds }
   }).sort({ createdAt: -1 }).limit(50);
@@ -24,10 +26,12 @@ const getFeed = async (req, res) => {
 
   res.json(tweets);
 };
+*/
 
 
 // FANOUT WRITE METHOD
-const getHomeFeed = async (req, res) => {
+/*
+const generateFeed = async (req, res) => {
   const userId = req.user.id;
 
   const tweetIds = await client.lRange(`feed:${userId}`, 0, 50);
@@ -40,4 +44,24 @@ const getHomeFeed = async (req, res) => {
 
 
 
-export { getFeed, getHomeFeed }
+export { generateFeed }
+*/
+
+const getFeed = async (req, res) => {
+  const userId = req.user.id;
+  // fetch feed from redis
+ const tweetIds = await client.lRange(`feed:${userId}`, 0, 50);
+
+  const parsedTweets = tweetIds.map(tweet =>
+      JSON.parse(tweet)
+    );
+
+    return res.json({
+      success: true,
+      count: parsedTweets.length,
+      data: parsedTweets
+    });
+
+}
+
+export {getFeed}
