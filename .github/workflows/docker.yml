@@ -11,6 +11,6 @@ jobs:
    - uses: actions/checkout@v4  
    - name: Build and push the image
      run: |
-      docker login --username abdulmoiz-bit --password ${{ secrets.GHCR_PAT }} ghcr.io
+      docker login --username abdulmoiz-bit --password ${{ secrets.GH_PAT }} ghcr.io
       docker build . --tag ghcr.io/abdulmoiz-bit/twitterauth:latest
       docker push ghcr.io/abdulmoiz-bit/twitterauth:latest
