@@ -1,4 +1,4 @@
-name: Docker Image CI for GHCR
+name: Docker Image CI for GHCR and DOCKER HUB
 
 on:
  push:
@@ -21,7 +21,7 @@ jobs:
 
    - name: Bild for GHCR and Docker Hub
      run: |
-       docker build ./services/users --tag ghcr.io/abdulmoiz-bit/twitteruser:latest --tag abdulmoiz/twitteruser:latest
+       docker build ./services/users --tag ghcr.io/abdulmoiz-bit/twitteruser:latest --tag moizrashid/twitteruser:latest
 
    - name: Push to GHCR
      run: |
