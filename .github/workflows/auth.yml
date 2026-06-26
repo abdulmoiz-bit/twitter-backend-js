@@ -16,3 +16,4 @@ jobs:
       docker login --username abdulmoiz-bit --password ${{ secrets.GH_PAT }} ghcr.io
       docker build ./services/auth --tag ghcr.io/abdulmoiz-bit/twitterauth:latest
       docker push ghcr.io/abdulmoiz-bit/twitterauth:latest
+   
