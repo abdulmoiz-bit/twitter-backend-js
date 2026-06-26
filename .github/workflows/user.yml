@@ -11,9 +11,22 @@ jobs:
 
   steps:
    - uses: actions/checkout@v4  
-   - name: Build and push to Docker Hub
+   - name: Login to GHCR
+     run: |
+       docker login --username abdulmoiz-bit --password ${{ secrets.GH_PAT }} ghcr.io 
+
+   - name: Login to Docker Hub
      run: |
        docker login --username moizrashid --password ${{ secrets.DOCKER_HUB_TOKEN }}
-       docker build ./services/users --tag moizrashid/twitteruser:latest
-       docker push moizrashid/twitteruser:latest
-   
+
+   - name: Bild for GHCR and Docker Hub
+     run: |
+       docker build . --tag ghcr.io/abdulmoiz-bit/twitteruser:latest --tag abdulmoiz/twitteruser:latest
+
+   - name: Push to GHCR
+     run: |
+      docker push ghcr.io/abdulmoiz-bit/twitteruser:latest
+
+   - name: Push to Docker Hub
+     run: |
+      docker push moizrashid/twitteruser:latest
