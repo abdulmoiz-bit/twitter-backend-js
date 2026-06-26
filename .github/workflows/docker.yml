@@ -16,9 +16,3 @@ jobs:
       docker login --username abdulmoiz-bit --password ${{ secrets.GH_PAT }} ghcr.io
       docker build ./services/auth --tag ghcr.io/abdulmoiz-bit/twitterauth:latest
       docker push ghcr.io/abdulmoiz-bit/twitterauth:latest
-
-   - name: Build and Push to Docker Hub
-      run: |
-       docker login --username moizrashid --password ${{ secrets.DOCKER_HUB_TOKEN }}
-       docker build ./services/auth --tag moizrashid/twitterauth:latest
-       docker push moizrashid/twitterauth:latest
