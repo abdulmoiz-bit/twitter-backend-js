@@ -1,5 +1,5 @@
 import { Router } from "express";
-import {createUser, getUser, getAllUsers, protect, getFollowers, getUserTweets, getFollowing, incrementFollowers, incrementFollowing, decrementFollowers, decrementFollowing} from "../controllers/userController.js"; 
+import {createUser, getUser, getAllUsers, getFollowers, getUserTweets, getFollowing, toggleFollow} from "../controllers/userController.js"; 
 
 const router = Router();
 
@@ -45,12 +45,17 @@ router.get("/:id/tweets", getUserTweets);
 // GET ALL BOOKMARKS OF A USER
 //router.get("/:id/bookmarks", userController.getUserBookmarks);
 
+/*
 // INCREMENT/DECREMENT FOLLOWERS AND FOLLOWING COUNT
 router.patch("/:id/increment-followers", incrementFollowers);
-router.patch("/:id/decreament-followers", decrementFollowers);
+router.patch("/:id/decrement-followers", decrementFollowers);
 router.patch("/:id/increment-following", incrementFollowing);
 router.patch("/:id/decrement-following", decrementFollowing);
+*/
 
+
+// FOLLOW A USER
+router.post("/:id/follow", toggleFollow);
 
 
 export default router;

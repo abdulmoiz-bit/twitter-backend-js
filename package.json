@@ -19,11 +19,13 @@
   },
   "scripts": {
     "start": "npm run start:all",
-    "start:all": "concurrently \"npm run start:user\" \"npm run start:tweet\" \"npm run start:auth\" \"npm run start:feed\" \"npm run start:follower\"",
+    "start:all": "concurrently \"npm run start:api-gateway\" \"npm run start:auth\" \"npm run start:users\" \"npm run start:tweets\" \"npm run start:like\"",
+    "start:api-gateway": "nodemon api-gateway/index.js",
     "start:auth": "nodemon services/auth/src/app.js",
-    "start:user": "nodemon services/users/src/app.js",
-    "start:tweet": "nodemon services/tweets/src/app.js",
-    "start:follower": "nodemon services/follower/src/app.js",
+    "start:users": "nodemon services/users/src/app.js",
+    "start:tweets": "nodemon services/tweets/src/app.js",
+    "start:like": "nodemon services/like/src/app.js",
+
     "start:feed": "nodemon services/feed/src/app.js",
     "install:all": "npm install && cd api-gateway && npm install && cd ../services/auth && npm install && cd ../../services/user && npm install && cd ../../services/tweets && npm install && cd ../..",
     "lint": "eslint . --ext .js",

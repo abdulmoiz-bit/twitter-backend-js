@@ -1,11 +1,16 @@
-const dotenv = require("dotenv");
-const express = require("express");
-//const dotenv = require("dotenv");
-const proxy = require("express-http-proxy");
-const jwt = require("jsonwebtoken");
+import dotenv from "dotenv";
+import express from "express";
+import proxy from "express-http-proxy";
+import jwt from "jsonwebtoken";
 
-// this is not absolute path
-dotenv.config({ path: "./.env" });
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+dotenv.config({ path: __dirname + "/.env" });
+
 
 const app = express();
 app.use(express.json());
@@ -25,27 +30,42 @@ app.use(express.json());
 
   // 2) Verification token
   const decoded =  jwt.verify(token, process.env.JWT_SECRET);
-
+  req.user = decoded;
+  /*
   // 3) Check if user still exists
   const currentUser = User.findById(decoded.id);
   if (!currentUser) {
     return next(new Error("the user is not exist"));
   }
+  */
 
   // GRANT ACCESS
-  req.user = currentUser;
+  //req.user = currentUser;
   next();
 };
 
 
-app.use(authMiddleware);
+//app.use(authMiddleware);
 app.get('/', (req, res) => {
   res.send('Hello World!')
 })
 
 // Route proxies
-app.use("/api/v1/users", proxy(process.env.USER_SERVICE_URL));
-app.use("/api/v1/tweets", authMiddleware, proxy(process.env.TWEET_SERVICE_URL));
+app.use(
+  "/api/v1/auth",
+  proxy(process.env.AUTH_SERVICE_URL, {
+    proxyReqPathResolver: (req) => `/api/v1/auth${req.url}`,
+  }),
+);
+app.use("/api/v1/users", authMiddleware, proxy(process.env.USER_SERVICE_URL, {
+    proxyReqPathResolver: (req) => `/api/v1/users${req.url}`,
+}));
+app.use("/api/v1/tweets", authMiddleware, proxy(process.env.TWEET_SERVICE_URL, {
+    proxyReqPathResolver: (req) => `/api/v1/tweets${req.url}`,
+}));
+app.use("/api/v1/likes", authMiddleware, proxy(process.env.LIKE_SERVICE_URL, {
+  proxyReqPathResolver: (req) => `/api/v1/likes${req.url}`,
+}));
 
 app.listen(process.env.GATEWAY_PORT || 5000, () =>
   console.log(`API Gateway running on ${process.env.GATEWAY_PORT || 5000}`)

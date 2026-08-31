@@ -1,54 +1,42 @@
-import Like from "../models/likeModel";
-//import amqplib from "amqplib";
+import Like from "../models/likeModel.js";
+import {syncLikeCount} from "../services/tweetApi.js";
 
 
-export const likeTweet = async(req, res) => {
-    const tweetId = req.params.tweetId;
-    const userId = req.body.userId;
+export const toggleLike = async (req, res, next) => {
+  try {
+    const { tweetId } = req.params;
+    const userId = req.user?.id; // from auth middleware — never req.body
 
-    const like = await Like.create({
-        tweetId,
-        userId
-    })
-    res.status(201).json({
+    const existingLike = await Like.findOne({ tweetId, userId });
+
+    if (existingLike) {
+      await existingLike.deleteOne();
+
+      try {
+        await syncLikeCount(tweetId, "decrement");
+      } catch (err) {
+        console.error(`Like-count sync (decrement) failed for tweet ${tweetId}:`, err.message);
+      }
+
+      return res.status(200).json({
         status: "success",
-        data: {
-            like
-        }
-    })
-}
+        data: { liked: false },
+      });
+    }
 
+    const like = await Like.create({ tweetId, userId });
 
+    try {
+      await syncLikeCount(tweetId, "increment");
+    } catch (err) {
+      console.error(`Like-count sync (increment) failed for tweet ${tweetId}:`, err.message);
+    }
 
-/*
-
-exports.toggleLike = async (req, res, next) => {
- // const userId = req.user.id;
-  const tweetId = req.params.tweetId;
-
-  const tweet = await Tweet.findById(tweetId);
-  if (!tweet) {
-    return res.status(404).json({
-      status: "fail",
-      message: "Tweet not found",
+    return res.status(201).json({
+      status: "success",
+      data: { liked: true, like },
     });
+  } catch (err) {
+    next(err);
   }
-
-  const alreadyLiked = tweet.likes.includes(userId);
-  if (alreadyLiked) {
-    tweet.likes.pull(userId);
-  } else {
-    tweet.likes.push(userId);
-  }
-
-
-  await tweet.save();
-  res.status(200).json({
-    status: "success",
-   // message: alreadyLiked ? "Tweet unliked" : "Tweet Liked",
-    data: {
-      likesCount: tweet.likes.length,
-    },
-  });
 };
-*/

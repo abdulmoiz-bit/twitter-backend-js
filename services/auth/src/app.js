@@ -1,5 +1,3 @@
-//require("dotenv").config({ path: __dirname + "/../.env" });
-//const dotenv = require("dotenv");
 import dotenv from "dotenv";
 import express from "express";
 import router from "./routes/authRoutes.js"
@@ -21,7 +19,6 @@ const DB = process.env.DATABASE.replace("<PASSWORD>", process.env.DATABASE_PASSW
 mongoose.connect(DB).then(() => console.log("DB connection successful!"));
 
 app.use("/api/v1/auth", router);
-//app.use
 
 app.listen(process.env.PORT || 5001, () =>
   console.log(`Auth service running on port ${process.env.PORT || 5001}`)

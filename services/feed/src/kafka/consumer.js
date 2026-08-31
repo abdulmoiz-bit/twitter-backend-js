@@ -2,6 +2,7 @@ import { kafka } from "./client.js";
 import { client } from "../redis/client.js"
 import { getFollowers } from "../services/followingApi.js";
 
+// BEHAVE LIKE WORKER: listen to topic and fanout to followers feed in redis
 const consumer = kafka.consumer({ groupId: "feed-group" });
 console.log(consumer)
 

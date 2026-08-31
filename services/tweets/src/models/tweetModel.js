@@ -17,6 +17,7 @@ const tweetSchema = new mongoose.Schema({
     type: String,
     required : [true, "a tweet must have a userId"],
   },
+  /*
   name:{
     type: String,
   },
@@ -29,6 +30,7 @@ const tweetSchema = new mongoose.Schema({
   video: {
     type: String,
   },
+  */
 });
 
 const Tweet = mongoose.model("Tweet", tweetSchema);

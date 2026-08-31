@@ -1,17 +1,45 @@
 import authUser from "../models/authModel.js";
 import axios from "axios";
+import crypto from "crypto";
 import jwt from "jsonwebtoken";
 
+/*
+const hashPassword = (password) => {
+  const salt = crypto.randomBytes(16).toString("hex");
+  const hash = crypto
+    .pbkdf2Sync(password, salt, 100000, 64, "sha512")
+    .toString("hex");
+  return `${salt}:${hash}`;
+};
+*/
+/*
+const comparePassword = (candidatePassword, storedPassword) => {
+  if (!candidatePassword || !storedPassword) return false;
 
+  if (storedPassword === candidatePassword) return true;
+
+  const [salt, hash] = storedPassword.split(":");
+  if (!salt || !hash) return false;
+
+  const candidateHash = crypto
+    .pbkdf2Sync(candidatePassword, salt, 100000, 64, "sha512")
+    .toString("hex");
+
+  return candidateHash === hash;
+};
+*/
 const createUser = async (req, res) => {
   const { username, name, email, password } = req.body;
+  //const normalizedEmail = email.toLowerCase();
+  //const hashedPassword = hashPassword(password);
   const authUserModel = await authUser.create({
-    email,
-    password, // TODO: hash this before saving
+    email: email,
+    password: password,
   });
   console.log("User created", authUserModel);
   await axios.post("http://localhost:5002/api/v1/users", {
     userId: authUserModel._id,
+    email,
     username,
     name,
   });
@@ -25,7 +53,16 @@ const signToken = (id) => {
   });
 };
 
+
 const createSendToken = (authUserModel, statusCode, res) => {
+  // this is edited
+   if (!authUserModel || !authUserModel._id) {
+    return res.status(401).json({
+      status: "fail",
+      message: "Incorrect email or password",
+    });
+  }
+
   const token = signToken(authUserModel._id);
   const cookieOptions = {
     expires: new Date(
@@ -53,19 +90,32 @@ const login = async (req, res) => {
 
   // 1) Check if email and password exist
   if (!email || !password) {
-    throw new Error("please provide email and passowrd");
+    return res.status(400).json({
+      status: "fail",
+      message: "Please provide email and password",
+    });
   }
 
   // 2) Check if user exists && password is correct
-  // +passoword can not understand
-  const user = await authUserModel.findOne({ email }).select("+password");
+  //const normalizedEmail = email.toLowerCase();
+  const user = await authUser.findOne({ email }).select("+password");
 
-  // solve this immediately
+  if (!user) {
+    return res.status(401).json({
+      status: "fail",
+      message: "Incorrect email or password",
+    });
+  }
+
   /*
-  if (!user || !(await user.correctpassword(password, user.password))) {
-    throw new Error("incorrect email or password");
+  if (user.password && !comparePassword(password, user.password)) {
+    return res.status(401).json({
+      status: "fail",
+      message: "Incorrect email or password",
+    });
   }
   */
+
   createSendToken(user, 200, res);
 };
 

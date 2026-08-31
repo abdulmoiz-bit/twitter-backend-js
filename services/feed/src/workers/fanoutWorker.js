@@ -1,4 +1,4 @@
-import {client} from "../services/client.js"
+import {client} from "../redis/client"
 
 async function startFanoutWorker() {
   console.log("Fanout Worker Started...");

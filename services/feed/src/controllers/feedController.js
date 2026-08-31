@@ -1,10 +1,9 @@
-//import {client} from "../services/client.js"
 //import Tweet from "../models/tweetModel.js"
 import {client} from "../redis/client.js"
 
 
 
-// FANOUT READ METHOD
+// FANOUT WRITE METHOD
 /*
 const getFeed = async (req, res) => {
    const userId = req.user.id;
@@ -15,9 +14,8 @@ const getFeed = async (req, res) => {
   if(cachedFeed){
     return res.json(JSON.parse(cachedFeed));
   }
-  */
-
-  c/*onst followingIds = await getFollowing(userId);
+/*
+  const followingIds = await getFollowing(userId);
   const tweets = await Tweet.find({
     user: { $in: followingIds }
   }).sort({ createdAt: -1 }).limit(50);
@@ -29,7 +27,7 @@ const getFeed = async (req, res) => {
 */
 
 
-// FANOUT WRITE METHOD
+// FANOUT READ METHOD
 /*
 const generateFeed = async (req, res) => {
   const userId = req.user.id;
@@ -42,11 +40,13 @@ const generateFeed = async (req, res) => {
   res.json(tweets);
 };
 
-
-
 export { generateFeed }
 */
 
+
+
+
+// FANOUT WRITE METHOD
 const getFeed = async (req, res) => {
   const userId = req.user.id;
   // fetch feed from redis
