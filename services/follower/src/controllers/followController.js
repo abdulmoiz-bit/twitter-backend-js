@@ -1,9 +1,16 @@
-import { decrementFollowingCount, incrementFollowersCount, decrementFollowersCount, incrementFollowingCount, getUserById } from "../services/userApi.js";
+import { decrementFollowersCount, decrementFollowingCount, incrementFollowersCount, incrementFollowingCount, getUserById } from "../services/userApi.js";
 import Follow from "../model/followModel.js";
 
 const toggleFollow = async (req, res) => {
   const targetUserId = req.params.id;
-  const currentUserId = req.user.id;
+  const currentUserId = req.user?.id;
+
+  if (!currentUserId) {
+    return res.status(401).json({
+      status: "fail",
+      message: "Not logged in",
+    });
+  }
 
   if (targetUserId === currentUserId) {
     return res.status(400).json({
@@ -21,29 +28,28 @@ const toggleFollow = async (req, res) => {
       message: "target user not found",
     });
   }
-  //const isFollowing = currentUser.following.includes(targetUserId);
-  // unfollow if already following, otherwise follow
-  /*
-  if (isFollowing) {
-    currentUser.following.pull(targetUserId);
-    targetUser.followers.pull(currentUserId); // this is not present in the user model
-  } else {
-    currentUser.following.push(targetUserId);
-    targetUser.followers.push(currentUserId);  // this is not present in the user model
-  }
-  */
+  
   const existingFollow = await Follow.findOne({
     followerId: currentUserId,
     followingId: targetUserId,
   });
+
   if (existingFollow) {
     await Follow.deleteOne({
       followerId: currentUserId,
       followingId: targetUserId,
     });
-
-    await decreamentFollowersCount(targetUserId);
+    await decrementFollowersCount(targetUserId);
     await decrementFollowingCount(currentUserId);
+
+    return res.status(200).json({
+      status: "success",
+      message: "Unfollowed successfully",
+      data: {
+        followingCount: currentUser?.following?.length || 0,
+        followersCount: targetUser?.followers?.length || 0,
+      },
+    });
   }
 
   await Follow.create({
@@ -60,10 +66,10 @@ const toggleFollow = async (req, res) => {
 
   res.status(200).json({
     status: "success",
-    message: isFollowing ? "Unfollowed successfully" : "Followed Successfully",
+    message: "Followed successfully",
     data: {
-      followingCount: currentUser.following.length,
-      followersCount: targetUser.followers.length,
+      followingCount: currentUser?.following?.length || 0,
+      followersCount: targetUser?.followers?.length || 0,
     },
   });
 };

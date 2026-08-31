@@ -1,15 +1,15 @@
 import Tweet from "../models/tweetModel.js";
-//const Tweet = require("./../models/tweetModel");
-//const Comment = require("./../models/commentModel");
-//const {getUserById} = require("../services/userApi")
-//const { publishTweetEvent } = require("../services/streamService");
 //import { publishTweetEvent } from "../services/streamService.js";
 //import { getUserById } from "../services/userApi.js";
 //import { getFollowing } from "../services/userApi.js";
 //import { redis } from "../services/client.js";
 //import {producer} from "../kafka/producer.js"
+//import jwt from "jsonwebtoken";
+//import dotenv from "dotenv";
 
-const getAllTweets = async (req, res) => {
+
+
+export const getAllTweets = async (req, res) => {
   const tweets = await Tweet.find();
   //console.log(req.requestTime);
   res.status(200).json({
@@ -23,16 +23,16 @@ const getAllTweets = async (req, res) => {
 };
 
 
-const postTweet = async (req, res) => {
-  const { text } = req.body;
-  const userId = req.user.id;
+export const postTweet = async (req, res) => {
+  const {text} = req.body;
+  const userId = req.user?.id;
   //const{userId} = req.body;
   const newTweet = await Tweet.create({
     text,
     userId: userId,
   });
   console.log(newTweet);
-  /*
+  /* KAFKA
   await producer.send({
     topic: "feed",
     messages: [
@@ -54,59 +54,8 @@ const postTweet = async (req, res) => {
   });
 };
 
-const getTweetsByUserId = async (req, res) => {
-  //const tweets = await Tweet.findById(req.params.userId);
-  const tweets = await Tweet.find({ userId: req.params.userId });
-  res.status(200).json({
-    status: "success",
-    results: tweets.length,
-    data: {
-      tweets,
-    },
-  });
-};
-
-// via rest api communication to User Service to get user details
-/*
-exports.postTweet = async (req, res) => {
-  const {text} = req.body;
-  const {userId} = req.body;
-  const user = await getUserById(userId)
-  //const newTweet = await Tweet.create(req.body);
-  const newTweet = await Tweet.create({
-    text,
-    userId : user._id,
-    username: user.username,
-    name: user.name,
-    email: user.name,
-    followers: user.followers,
-    following: user.following
-  })
-  console.log(newTweet);
-  res.status(201).json({
-    status: "success",
-    data: {
-      tweet: newTweet,
-    },
-  });
-};
-
-*/
-
-/*
-exports.setUserId = (req, res, next) => {
-  if (!req.body.user) req.body.user = req.user.id;
-  next();
-};
-*/
 
 
-
-/*
-exports.getReplies = async (req,res) => {
-
-}
-*/
 
 
 /*
@@ -122,12 +71,77 @@ exports.getTweetLikes = async (req, res) => {
   });
 };
 
+
 /*
 exports.deleteTweet = async (req, res) => {
 
 }
 */
 
+/*
+export const toggleLikeCount = async (req, res, next) => {
+  try {
+    const { tweetId } = req.params;
+    const { action } = req.body; // "increment" | "decrement"
 
+    const delta = action === "increment" ? 1 : action === "decrement" ? -1 : null;
+    if (delta === null) {
+      return res.status(400).json({
+        status: "fail",
+        message: 'action must be "increment" or "decrement"',
+      });
+    }
 
-export { getAllTweets, postTweet, getTweetsByUserId};
+    const tweet = await Tweet.findByIdAndUpdate(
+      tweetId,
+      { $inc: { likesCount: delta } },
+      { new: true }
+    );
+
+    if (!tweet) {
+      return res.status(404).json({ status: "fail", message: "Tweet not found" });
+    }
+
+    res.status(200).json({
+      status: "success",
+      data: { likesCount: tweet.likesCount },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+*/
+
+// tweet.controller.js  (Tweet service) — the completed stub
+export const toggleLikeCount = async (req, res, next) => {
+  try {
+    const { tweetId } = req.params;
+    const { action } = req.body;
+
+    const delta = action === "increment" ? 1 : action === "decrement" ? -1 : null;
+    if (delta === null) {
+      return res.status(400).json({
+        status: "fail",
+        message: 'action must be "increment" or "decrement"',
+      });
+    }
+
+    const tweet = await Tweet.findByIdAndUpdate(
+      tweetId,
+      { $inc: { likesCount: delta } },
+      { new: true }
+    );
+
+    if (!tweet) {
+      return res.status(404).json({ status: "fail", message: "Tweet not found" });
+    }
+
+    res.status(200).json({
+      status: "success",
+      data: { likesCount: tweet.likesCount },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+

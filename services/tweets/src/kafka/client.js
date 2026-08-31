@@ -1,4 +1,3 @@
-//const { Kafka } = require('kafkajs')
 import { Kafka } from 'kafkajs'
 
 export const kafka = new Kafka({
@@ -22,41 +21,3 @@ await admin.createTopics({
 await admin.disconnect();
 }
 init();
-
-
-
-
-
-
-
-/*
-const producer = kafka.producer()
-
-await producer.connect()
-await producer.send({
-  topic: 'feed',
-  messages: [
-    { key: "key1", value: 'the first tweet' },
-  ],
-})
-
-await producer.disconnect()
-*/
-
-
-/*
-const consumer = kafka.consumer({ groupId: 'test-group' })
-
-await consumer.connect()
-await consumer.subscribe({ topic: 'feed', fromBeginning: true })
-
-await consumer.run({
-    eachMessage: async ({ topic, message,}) => {
-        console.log({
-            key: message.key.toString()
-        })
-    },  
-})
-
-await consumer.disconnect();
- */

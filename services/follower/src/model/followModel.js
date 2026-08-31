@@ -10,7 +10,7 @@ const followSchema = new mongoose.Schema({
     required : [true, "a following must have a tweetId"]
   },
   createdAt: {
-    type: Date,
+    type: Date, 
   }
 })
 

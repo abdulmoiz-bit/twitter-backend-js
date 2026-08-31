@@ -4,7 +4,7 @@ const getFollowers = async(userId) => {
     return response.data.followers;
 }
 
-// feed generation
+// for feed generation
 const getFollowing = async (userId) => {
     const response = await axios.get(`http://localhost:5002/api/v1/users/${userId}/following`);
     return response.data.following;

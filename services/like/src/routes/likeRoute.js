@@ -1,8 +1,8 @@
 import express from 'express';
-import { likeTarget } from '../controllers/likeController.js';
+import { toggleLike} from '../controllers/likeController.js';
 
 const router = express.Router();
 
-router.post("/:tweetId", likeTarget)
+router.post("/:tweetId", toggleLike);
 
 export default router;

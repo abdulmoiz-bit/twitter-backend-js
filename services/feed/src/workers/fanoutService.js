@@ -1,5 +1,5 @@
-import {client} from "../services/client.js"
-import { getFollowers } from "../services/userService.js";
+import {client} from "../redis/client.js"
+import { getFollowers } from "../services/followingApi.js"
 
 export const processTweetEvent = async (tweetId, authorId) => {
   const followers = await getFollowers(authorId);
