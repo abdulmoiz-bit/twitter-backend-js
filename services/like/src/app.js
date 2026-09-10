@@ -49,6 +49,6 @@ mongoose.connect(DB).then(() => console.log("DB connection successful!"));
 
 
 app.use("/api/v1/likes", authMiddleware, router);
-app.listen(process.env.PORT || 5005, () =>
+app.listen(process.env.PORT || 5006, () =>
   console.log(`Like service running on port ${process.env.PORT || 5005}`)
 );

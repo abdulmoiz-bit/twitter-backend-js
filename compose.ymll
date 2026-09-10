@@ -1,0 +1,355 @@
+version: "3.9"
+
+services:
+  # Infrastructure Services
+  mongo:
+    image: mongo:latest
+    container_name: mongodb-service
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-admin}
+    volumes:
+      - mongo-data:/data/db
+      - mongo-config:/data/configdb
+    networks:
+      - twitter-network
+    restart: unless-stopped
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:latest
+    container_name: redis-service
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - twitter-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka-service
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    depends_on:
+      - zookeeper
+    networks:
+      - twitter-network
+    restart: unless-stopped
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper-service
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    networks:
+      - twitter-network
+    restart: unless-stopped
+
+  # API Gateway
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway-service
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=development
+      - PORT=5000
+      - AUTH_SERVICE_URL=http://auth:5001
+      - USER_SERVICE_URL=http://user:5002
+      - TWEET_SERVICE_URL=http://tweet:5003
+      - FEED_SERVICE_URL=http://feed:5004
+      - FOLLOW_SERVICE_URL=http://follow:5005
+      - LIKE_SERVICE_URL=http://like:5006
+    depends_on:
+      - auth
+      - user
+      - tweet
+      - follow
+      - feed
+      - like
+    networks:
+      - twitter-network
+    restart: unless-stopped
+
+  # Authentication Service
+  auth:
+    build: ./services/auth
+    container_name: auth-service
+    ports:
+      - "5001:5001"
+    environment:
+      - NODE_ENV=development
+      - PORT=5001
+      - MONGODB_URI=${MONGODB_URI:-mongodb://admin:admin@mongo:27017/auth?authSource=admin}
+      - JWT_SECRET=${JWT_SECRET:-your_jwt_secret}
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - twitter-network
+    restart: unless-stopped
+
+  # User Service
+  user:
+    build: ./services/user
+    container_name: user-service
+    ports:
+      - "5002:5002"
+    environment:
+      - NODE_ENV=development
+      - PORT=5002
+      - MONGODB_URI=${MONGODB_URI:-mongodb://admin:admin@mongo:27017/user?authSource=admin}
+      - AUTH_SERVICE_URL=http://auth:5001
+      - TWEET_SERVICE_URL=http://tweet:5003
+    depends_on:
+      mongo:
+        condition: service_healthy
+      auth:
+        condition: service_started
+    networks:
+      - twitter-network
+    restart: unless-stopped
+
+  # Tweet Service
+  tweet:
+    build: ./services/tweet
+    container_name: tweet-service
+    ports:
+      - "5003:5003"
+    environment:
+      - NODE_ENV=development
+      - PORT=5003
+      - MONGODB_URI=${MONGODB_URI:-mongodb://admin:admin@mongo:27017/tweet?authSource=admin}
+      - AUTH_SERVICE_URL=http://auth:5001
+      - USER_SERVICE_URL=http://user:5002
+      - FEED_SERVICE_URL=http://feed:5004
+    depends_on:
+      mongo:
+        condition: service_healthy
+      auth:
+        condition: service_started
+    networks:
+      - twitter-network
+    restart: unless-stopped
+
+  # Follow Service
+  follow:
+    build: ./services/follow
+    container_name: follow-service
+    ports:
+      - "5005:5005"
+    environment:
+      - NODE_ENV=development
+      - PORT=5005
+      - MONGODB_URI=${MONGODB_URI:-mongodb://admin:admin@mongo:27017/follow?authSource=admin}
+      - AUTH_SERVICE_URL=http://auth:5001
+      - USER_SERVICE_URL=http://user:5002
+      - FEED_SERVICE_URL=http://feed:5004
+    depends_on:
+      mongo:
+        condition: service_healthy
+      auth:
+        condition: service_started
+    networks:
+      - twitter-network
+    restart: unless-stopped
+
+  # Feed Service
+  feed:
+    build: ./services/feed
+    container_name: feed-service
+    ports:
+      - "5004:5004"
+    environment:
+      - NODE_ENV=development
+      - PORT=5004
+      - MONGODB_URI=${MONGODB_URI:-mongodb://admin:admin@mongo:27017/feed?authSource=admin}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - AUTH_SERVICE_URL=http://auth:5001
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      auth:
+        condition: service_started
+    networks:
+      - twitter-network
+    restart: unless-stopped
+
+  # Like Service
+  like:
+    build: ./services/like
+    container_name: like-service
+    ports:
+      - "5006:5006"
+    environment:
+      - NODE_ENV=development
+      - PORT=5006
+      - MONGODB_URI=${MONGODB_URI:-mongodb://admin:admin@mongo:27017/like?authSource=admin}
+      - AUTH_SERVICE_URL=http://auth:5001
+      - USER_SERVICE_URL=http://user:5002
+      - TWEET_SERVICE_URL=http://tweet:5003
+      - FEED_SERVICE_URL=http://feed:5004
+    depends_on:
+      mongo:
+        condition: service_healthy
+      auth:
+        condition: service_started
+    networks:
+      - twitter-network
+    restart: unless-stopped
+
+  # Chat Service
+  chat:
+    build: ./services/chat
+    container_name: chat-service
+    ports:
+      - "5007:5007"
+    environment:
+      - NODE_ENV=development
+      - PORT=5007
+      - MONGODB_URI=${MONGODB_URI:-mongodb://admin:admin@mongo:27017/chat?authSource=admin}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - KAFKA_BROKERS=${KAFKA_BROKERS:-kafka:29092}
+      - AUTH_SERVICE_URL=http://auth:5001
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    networks:
+      - twitter-network
+    restart: unless-stopped
+
+  # Email Service
+  email:
+    build: ./services/email
+    container_name: email-service
+    ports:
+      - "5008:5008"
+    environment:
+      - NODE_ENV=development
+      - PORT=5008
+      - KAFKA_BROKERS=${KAFKA_BROKERS:-kafka:29092}
+      - SMTP_HOST=${SMTP_HOST:-smtp.mailtrap.io}
+      - SMTP_PORT=${SMTP_PORT:-465}
+    depends_on:
+      kafka:
+        condition: service_started
+    networks:
+      - twitter-network
+    restart: unless-stopped
+
+  # Bookmark Service
+  bookmark:
+    build: ./services/bookmark
+    container_name: bookmark-service
+    ports:
+      - "5009:5009"
+    environment:
+      - NODE_ENV=development
+      - PORT=5009
+      - MONGODB_URI=${MONGODB_URI:-mongodb://admin:admin@mongo:27017/bookmark?authSource=admin}
+      - AUTH_SERVICE_URL=http://auth:5001
+    depends_on:
+      mongo:
+        condition: service_healthy
+      auth:
+        condition: service_started
+    networks:
+      - twitter-network
+    restart: unless-stopped
+
+  # Notification Service
+  notification:
+    build: ./services/notification
+    container_name: notification-service
+    ports:
+      - "5010:5010"
+    environment:
+      - NODE_ENV=development
+      - PORT=5010
+      - MONGODB_URI=${MONGODB_URI:-mongodb://admin:admin@mongo:27017/notification?authSource=admin}
+      - KAFKA_BROKERS=${KAFKA_BROKERS:-kafka:29092}
+    depends_on:
+      mongo:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    networks:
+      - twitter-network
+    restart: unless-stopped
+
+  # Reply Service
+  reply:
+    build: ./services/reply
+    container_name: reply-service
+    ports:
+      - "5011:5011"
+    environment:
+      - NODE_ENV=development
+      - PORT=5011
+      - MONGODB_URI=${MONGODB_URI:-mongodb://admin:admin@mongo:27017/reply?authSource=admin}
+      - AUTH_SERVICE_URL=http://auth:5001
+      - TWEET_SERVICE_URL=http://tweet:5003
+    depends_on:
+      mongo:
+        condition: service_healthy
+      auth:
+        condition: service_started
+    networks:
+      - twitter-network
+    restart: unless-stopped
+
+  # Retweet Service
+  retweet:
+    build: ./services/retweet
+    container_name: retweet-service
+    ports:
+      - "5012:5012"
+    environment:
+      - NODE_ENV=development
+      - PORT=5012
+      - MONGODB_URI=${MONGODB_URI:-mongodb://admin:admin@mongo:27017/retweet?authSource=admin}
+      - AUTH_SERVICE_URL=http://auth:5001
+      - TWEET_SERVICE_URL=http://tweet:5003
+    depends_on:
+      mongo:
+        condition: service_healthy
+      auth:
+        condition: service_started
+    networks:
+      - twitter-network
+    restart: unless-stopped
+
+volumes:
+  mongo-data:
+  mongo-config:
+  redis-data:
+
+networks:
+  twitter-network:
+    driver: bridge

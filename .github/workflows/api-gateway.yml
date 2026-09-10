@@ -3,12 +3,13 @@ name: Docker Image CI for GHCR and DOCKER HUB
 on:
  push:
   path: 
-   - "services/auth/**"
+   - "api-gateway/**"
 
 jobs:
  build_and_publish:
   runs-on: ubuntu-latest
 
+  
   steps:
    - uses: actions/checkout@v4  
    - name: Login to GHCR
@@ -21,15 +22,13 @@ jobs:
 
    - name: Bild for GHCR and Docker Hub
      run: |
-       docker build ./services/auth --tag ghcr.io/abdulmoiz-bit/twitterauth:latest --tag moizrashid/twitterauth:latest
+       docker build api-gateway --tag ghcr.io/abdulmoiz-bit/twitterapi-gateway:latest --tag moizrashid/twitterapi-gateway:latest
 
    - name: Push to GHCR
      run: |
-      docker push ghcr.io/abdulmoiz-bit/twitterauth:latest
+      docker push ghcr.io/abdulmoiz-bit/twitterapi-gateway:latest
 
    - name: Push to Docker Hub
      run: |
-      docker push moizrashid/twitterauth:latest
-   
-
+      docker push moizrashid/twitterapi-gateway:latest
    

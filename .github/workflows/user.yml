@@ -3,7 +3,7 @@ name: Docker Image CI for GHCR and DOCKER HUB
 on:
  push:
   path: 
-   - "services/users/**"
+   - "services/user/**"
 
 jobs:
  build_and_publish:

@@ -37,7 +37,8 @@ const createUser = async (req, res) => {
     password: password,
   });
   console.log("User created", authUserModel);
-  await axios.post("http://localhost:5002/api/v1/users", {
+  const USER_SERVICE_URL = process.env.USER_SERVICE_URL || 'http://user:5002';
+  await axios.post(`${USER_SERVICE_URL}/api/v1/users`, {
     userId: authUserModel._id,
     email,
     username,

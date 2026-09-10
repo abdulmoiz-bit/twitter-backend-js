@@ -1,30 +1,32 @@
 import axios from 'axios';
 
+const USER_SERVICE_URL = process.env.USER_SERVICE_URL || 'http://user:5002';
+
 export const getUserById = async(userId) => {
-    const response = await axios.get(`http://localhost:5002/api/v1/users/${userId}`)
+    const response = await axios.get(`${USER_SERVICE_URL}/api/v1/users/${userId}`)
     return response.data.data;
 }
 
 export const incrementFollowersCount = async (userId) => {
   await axios.patch(
-    `http://localhost:5002/api/v1/users/${userId}/increment-followers`
+    `${USER_SERVICE_URL}/api/v1/users/${userId}/increment-followers`
   );
 };
 
 export const decrementFollowersCount = async (userId) => {
   await axios.patch(
-    `http://localhost:5002/api/v1/users/${userId}/decreament-followers`
+    `${USER_SERVICE_URL}/api/v1/users/${userId}/decreament-followers`
   );
 };
 
 export const incrementFollowingCount = async (userId) => {
   await axios.patch(
-    `http://localhost:5002/api/v1/users/${userId}/increment-following`
+    `${USER_SERVICE_URL}/api/v1/users/${userId}/increment-following`
   );
 };
 
 export const decrementFollowingCount = async (userId) => {
   await axios.patch(
-    `http://localhost:5002/api/v1/users/${userId}/decrement-following`
+    `${USER_SERVICE_URL}/api/v1/users/${userId}/decrement-following`
   );
 };
