@@ -1,10 +1,17 @@
 FROM node:24-alpine3.23 
-USER app
+
 WORKDIR /app
-RUN mkdir data
-COPY package*.json .
+
+RUN addgroup -g 1001 -S nodejs && adduser -S app -u 1001
+
+COPY package*.json ./
+
 RUN npm install
-COPY . . 
+
+COPY --chown=app:nodejs . .
+
+USER app
+
 EXPOSE 5006
-CMD ["npm", "run", "start"] 
- 
+
+CMD ["npm", "run", "start"]

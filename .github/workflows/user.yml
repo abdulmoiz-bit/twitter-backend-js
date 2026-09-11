@@ -21,7 +21,7 @@ jobs:
 
    - name: Bild for GHCR and Docker Hub
      run: |
-       docker build ./services/users --tag ghcr.io/abdulmoiz-bit/twitteruser:latest --tag moizrashid/twitteruser:latest
+       docker build ./services/user --tag ghcr.io/abdulmoiz-bit/twitteruser:latest --tag moizrashid/twitteruser:latest
 
    - name: Push to GHCR
      run: |
